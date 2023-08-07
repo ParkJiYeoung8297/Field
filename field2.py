@@ -4,6 +4,7 @@ from IPython.display import clear_output
 
 clear_output
 def simulation(period):
+    delivery=False
     cost = 0
     country_list={'before':{'USA':[8,1.5],'Saudi':[6,0.5],'Russia':[5,0.5]},'after':{'USA':[8,2],'Saudi':[6,1.5],'Russia':[7,4]}}
     cost_list = [0]
@@ -36,6 +37,7 @@ def simulation(period):
         coun = input()
 
     x=int(input("Reorder point를 입력해주세요"))
+    upper_bound=int(input("재고의 Upper Bound를 설정해주세요"))
     
     lead_mean, lead_std=country_list[war][coun]
     for i in range(period):
@@ -45,7 +47,7 @@ def simulation(period):
         for sample_period, order_amount in order:
             if sample_period <= i:
                 print("주문이 도착했습니다!!")
-                delievery=False #배송 끝으로 상태 변경
+                delivery=False #배송 끝으로 상태 변경
                 inventory[i] += order_amount
                 order.pop(0)
         print("현재 석유 가격: {}".format(oil_price))
@@ -59,31 +61,33 @@ def simulation(period):
             print("[N] 다음 Period로")
             
             #user = input()
-            if inventory[i]>x:
-                if delievery=False:
-                    user="O"
-                else:
-                    user="X"
-            else:
+            if inventory[i]>=x:
                 user="N"
-            
+            else:
+                if delivery==True:
+                    user="N"
+                else:
+                    user="O"
+                    
             while (user != "O" and user != "N"):
                 #user = input()
-                if inventory[i]>x:
-                    
-                    user="O"
-                else:
-                    
+                if inventory[i]>=x:
                     user="N"
+                else:
+                    if delivery==True:
+                        user="N"
+                    else:
+                        user="O"
                     
             if user == "O":
                 print("얼마나 주문하실 건가요?")
                 while True:
-                    user_order = input()
+                    #user_order = input()
+                    user_order=upper_bound-inventory[i]
                     try:
                         user_order = int(user_order)
                         print("%i를 주문했습니다!" %user_order)
-                        delivering=True  #배송중으로 상태 변경
+                        delivery=True  #배송중으로 상태 변경
                         cost += user_order * oil_price
                         order_time[i] = 1
                         arrival= i + np.random.normal(lead_mean,lead_std,1)
