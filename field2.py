@@ -34,6 +34,9 @@ def simulation(period):
     coun = input()
     while (coun != "USA" and coun != "Saudi" and coun !="Russia"):
         coun = input()
+
+    x=int(input("Reorder point를 입력해주세요"))
+    
     lead_mean, lead_std=country_list[war][coun]
     for i in range(period):
         oil_price=oil_price_list[war][coun][int(i/6)]
@@ -42,6 +45,7 @@ def simulation(period):
         for sample_period, order_amount in order:
             if sample_period <= i:
                 print("주문이 도착했습니다!!")
+                delievery=False #배송 끝으로 상태 변경
                 inventory[i] += order_amount
                 order.pop(0)
         print("현재 석유 가격: {}".format(oil_price))
@@ -53,9 +57,25 @@ def simulation(period):
             print("행동을 선택하세요!")
             print("[O] 주문")
             print("[N] 다음 Period로")
-            user = input()
+            
+            #user = input()
+            if inventory[i]>x:
+                if delievery=False:
+                    user="O"
+                else:
+                    user="X"
+            else:
+                user="N"
+            
             while (user != "O" and user != "N"):
-                user = input()
+                #user = input()
+                if inventory[i]>x:
+                    
+                    user="O"
+                else:
+                    
+                    user="N"
+                    
             if user == "O":
                 print("얼마나 주문하실 건가요?")
                 while True:
@@ -63,6 +83,7 @@ def simulation(period):
                     try:
                         user_order = int(user_order)
                         print("%i를 주문했습니다!" %user_order)
+                        delivering=True  #배송중으로 상태 변경
                         cost += user_order * oil_price
                         order_time[i] = 1
                         arrival= i + np.random.normal(lead_mean,lead_std,1)
